@@ -143,7 +143,7 @@ struct customOverlay: NSViewRepresentable {
 
 extension View {
     @ViewBuilder
-    func glassAppearance(colorScheme: ColorScheme) -> some View {
+    func glassAppearance() -> some View {
         if #available(macOS 26.0, *) {
             self
                 .buttonStyle(.glass)
@@ -283,7 +283,7 @@ struct MacCardView: View {
                 }
                 .keyboardShortcut(.escape)
                 .keyboardShortcut(".", modifiers: .command)
-                .glassAppearance(colorScheme: colorScheme)
+                .glassAppearance()
                 
                 Spacer()
                 
@@ -299,7 +299,7 @@ struct MacCardView: View {
                 .keyboardShortcut("s", modifiers: .command)
                 .keyboardShortcut(.return, modifiers: .command)
                 .disabled(!canSave)
-                .glassAppearance(colorScheme: colorScheme)
+                .glassAppearance()
             }
         }
         .padding()
