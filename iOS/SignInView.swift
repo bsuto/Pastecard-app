@@ -109,7 +109,11 @@ struct SignInView: View {
                     
                     Button {
                         Task {
-                            try await card.signIn(PastecardCore.localUser)
+                            do {
+                                try await card.signIn(PastecardCore.localUser)
+                            } catch {
+                                print("Sign in failed: \(error)")
+                            }
                         }
                     } label: {
                         Text("Use Without an Account")
@@ -163,25 +167,28 @@ struct SignInView: View {
                     .ignoresSafeArea()
             } else {
                 if #available(iOS 26.0, *) {
-                    ZStack {
-                        WebView(
-                            url: URL(string: "#tos", relativeTo: Bundle.main.url(forResource: "help", withExtension: "html"))
-                        )
-                        VStack() {
-                            Spacer()
-                            HStack {
+                    VStack(spacing:0){
+                        ColorBar(height: 44)
+                        ZStack {
+                            WebView(
+                                url: URL(string: "#tos", relativeTo: Bundle.main.url(forResource: "help", withExtension: "html"))
+                            )
+                            VStack() {
                                 Spacer()
-                                Button {
-                                    showSVC = false
-                                } label: {
-                                    Image(systemName: "xmark")
-                                        .foregroundColor(.primary)
-                                        .font(.title)
-                                        .padding()
+                                HStack {
+                                    Spacer()
+                                    Button {
+                                        showSVC = false
+                                    } label: {
+                                        Image(systemName: "xmark")
+                                            .foregroundColor(.primary)
+                                            .font(.title)
+                                            .padding()
+                                    }
+                                    .accessibilityLabel("Done")
+                                    .glassEffect()
+                                    .padding()
                                 }
-                                .accessibilityLabel("Done")
-                                .glassEffect()
-                                .padding()
                             }
                         }
                     }
@@ -197,6 +204,7 @@ struct SignInView: View {
                         .padding()
                         .background(.bar)
                         .overlay(Rectangle().frame(width: nil, height: 1, alignment: .bottom).foregroundColor(Color(UIColor.systemFill)), alignment: .bottom)
+                        ColorBar()
                         HTMLView(fileName: "help", anchor: "tos")
                     }
                 }
@@ -223,7 +231,7 @@ struct SignInView: View {
                     do {
                         try await card.signIn(nameCheck)
                     } catch {
-                        throw NetworkError.signInError
+                        print("Sign in failed: \(error)")
                     }
                 }
             } else if statusCode == 404 {

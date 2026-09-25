@@ -87,28 +87,30 @@ struct SwipeMenu: View {
         .sheet(isPresented: $showSVC) {
             if networkMonitor.isConnected {
                 SafariViewController(url: URL(string: "https://pastecard.net/help/#app")!)
-                    .ignoresSafeArea()
             } else {
                 if #available(iOS 26.0, *) {
-                    ZStack {
-                        WebView(
-                            url: URL(string: "#app", relativeTo: Bundle.main.url(forResource: "help", withExtension: "html"))
-                        )
-                        VStack() {
-                            Spacer()
-                            HStack {
+                    VStack(spacing: 0) {
+                        ColorBar(height: 44)
+                        ZStack {
+                            WebView(
+                                url: URL(string: "#app", relativeTo: Bundle.main.url(forResource: "help", withExtension: "html"))
+                            )
+                            VStack() {
                                 Spacer()
-                                Button {
-                                    showSVC = false
-                                } label: {
-                                    Image(systemName: "xmark")
-                                        .foregroundColor(.primary)
-                                        .font(.title)
-                                        .padding()
+                                HStack {
+                                    Spacer()
+                                    Button {
+                                        showSVC = false
+                                    } label: {
+                                        Image(systemName: "xmark")
+                                            .foregroundColor(.primary)
+                                            .font(.title)
+                                            .padding()
+                                    }
+                                    .accessibilityLabel("Done")
+                                    .glassEffect()
+                                    .padding()
                                 }
-                                .accessibilityLabel("Done")
-                                .glassEffect()
-                                .padding()
                             }
                         }
                     }
@@ -124,6 +126,7 @@ struct SwipeMenu: View {
                         .padding()
                         .background(.bar)
                         .overlay(Rectangle().frame(width: nil, height: 1, alignment: .bottom).foregroundColor(Color(UIColor.systemFill)), alignment: .bottom)
+                        ColorBar()
                         HTMLView(fileName: "help", anchor: "app")
                     }
                 }
@@ -150,7 +153,7 @@ struct SwipeMenu: View {
             do {
                 try await card.refresh()
             } catch {
-                throw NetworkError.loadError
+                print("Refresh failed: \(error)")
             }
         }
     }

@@ -36,11 +36,25 @@ struct SignUpSheet: View {
                     .onChange(of: newUser) { _, newValue in
                         validate()
                     }
-                    .onSubmit { Task { try await signUp() } }
+                    .onSubmit {
+                        Task {
+                            do {
+                                try await signUp()
+                            } catch {
+                                print("Sign up failed: \(error)")
+                            }
+                        }
+                    }
                     .focused($newFocus)
                 Spacer()
                 Button {
-                    Task { try await signUp() }
+                    Task {
+                        do {
+                            try await signUp()
+                        } catch {
+                            print("Sign up failed: \(error)")
+                        }
+                    }
                 } label: {
                     Image(systemName: "arrow.right.circle")
                         .foregroundColor(invalidID ? Color(UIColor.placeholderText): Color("AccentColor"))
@@ -71,28 +85,35 @@ struct SignUpSheet: View {
         
         let name = newUser.lowercased().trimmingCharacters(in: .whitespaces)
         let initialText = "Welcome to Pastecard.\n\nSwipe up for an options menu, or tap this text to edit it and save your changes to the cloud.\n\nAccess your card from anywhere at pastecard.net/" + name
-        let parameters: [String: String] = ["cardText": initialText, "createdFrom": "iOS" ]
+        let parameters: [String: String] = ["cardText": initialText, "createdFrom": "iOS"]
         let url = URL(string: "https://pastecard.net/api/users/" + name)!
         
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
-        request.httpBody = try JSONSerialization.data(withJSONObject: parameters)
         request.addValue("application/json", forHTTPHeaderField: "Content-Type")
         request.addValue("application/json", forHTTPHeaderField: "Accept")
         request.timeoutInterval = 10.0
         
-        let (_, response) = try await URLSession(configuration: .ephemeral).data(for: request)
-        if let httpResponse = response as? HTTPURLResponse {
-            let statusCode = httpResponse.statusCode
-            if statusCode == 201 {
+        do {
+            request.httpBody = try JSONSerialization.data(withJSONObject: parameters)
+            let (_, response) = try await URLSession(configuration: .ephemeral).data(for: request)
+            guard let httpResponse = response as? HTTPURLResponse else { return }
+            
+            switch httpResponse.statusCode {
+            case 201:
                 try await card.signIn(name)
-            } else if statusCode == 409 || statusCode == 403 {
+            case 409, 403:
                 errorMessage = "Sorry, that ID is not available."
                 throw NetworkError.signInError
-            } else {
-                errorMessage = "Oops, something didn’t work. Please try again."
+            default:
+                errorMessage = "Oops, something didn't work. Please try again."
                 throw NetworkError.signInError
             }
+        } catch let error as NetworkError {
+            throw error
+        } catch {
+            errorMessage = "Oops, something didn't work. Please try again."
+            throw NetworkError.signInError
         }
     }
     
