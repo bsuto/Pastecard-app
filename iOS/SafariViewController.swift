@@ -33,3 +33,13 @@ struct HTMLView: UIViewRepresentable {
         webView.loadHTMLString(htmlString, baseURL: fullURL)
     }
 }
+
+struct ColorBar: View {
+    var height: CGFloat = 24
+
+    var body: some View {
+        Color("TrademarkBlue")
+            .frame(height: height)
+            .frame(maxWidth: .infinity)
+    }
+}
