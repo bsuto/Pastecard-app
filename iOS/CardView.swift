@@ -351,8 +351,18 @@ private struct CustomToolbarModifier<Toolbar: View>: ViewModifier {
                     inEditingMode = true
                 }
             }
+            .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillHideNotification)) { note in
+                let duration = (note.userInfo?[UIResponder.keyboardAnimationDurationUserInfoKey] as? Double) ?? 0.2
+                withAnimation(.easeOut(duration: duration)) {
+                    inEditingMode = false
+                }
+            }
             .onReceive(NotificationCenter.default.publisher(for: .editingDidEnd)) { _ in
-                inEditingMode = false
+                var transaction = Transaction()
+                transaction.disablesAnimations = true
+                withTransaction(transaction) {
+                    inEditingMode = false
+                }
             }
     }
 }
