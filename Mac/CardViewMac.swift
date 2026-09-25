@@ -141,6 +141,21 @@ struct customOverlay: NSViewRepresentable {
     }
 }
 
+extension View {
+    @ViewBuilder
+    func glassAppearance(colorScheme: ColorScheme) -> some View {
+        if #available(macOS 26.0, *) {
+            self
+                .buttonStyle(.glass)
+                .buttonBorderShape(.capsule)
+        } else {
+            self
+                .buttonStyle(.borderless)
+                .background(Color(NSColor.textBackgroundColor))
+        }
+    }
+}
+
 struct MacCardView: View {
     @EnvironmentObject var card: Pastecard
     @StateObject private var networkMonitor = NetworkMonitor()
@@ -264,9 +279,11 @@ struct MacCardView: View {
                 }) {
                     Text("Cancel")
                         .foregroundStyle(colorScheme == .dark ? .white : Color("TrademarkBlue"))
+                        .fontWeight(.semibold)
                 }
-                // .keyboardShortcut(.escape)
-                // .keyboardShortcut(".", modifiers: .command)
+                .keyboardShortcut(.escape)
+                .keyboardShortcut(".", modifiers: .command)
+                .glassAppearance(colorScheme: colorScheme)
                 
                 Spacer()
                 
@@ -277,14 +294,15 @@ struct MacCardView: View {
                         .foregroundStyle(
                             !canSave ? .secondary : (colorScheme == .dark ? .white : Color("TrademarkBlue"))
                         )
+                        .fontWeight(.semibold)
                 }
                 .keyboardShortcut("s", modifiers: .command)
-                // .keyboardShortcut(.return, modifiers: .command)
+                .keyboardShortcut(.return, modifiers: .command)
                 .disabled(!canSave)
+                .glassAppearance(colorScheme: colorScheme)
             }
         }
         .padding()
-        .background(Color(NSColor.textBackgroundColor))
     }
     
     // MARK: - Actions

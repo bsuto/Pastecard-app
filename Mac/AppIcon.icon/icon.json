@@ -22,17 +22,18 @@
             {
               "appearance" : "dark",
               "value" : {
-                "solid" : "srgb:1.00000,1.00000,1.00000,1.00000"
+                "solid" : "srgb:1.00000,1.00000,1.00000,0.67000"
               }
             }
           ],
+          "glass" : false,
           "image-name" : "Rectangle 3.png",
           "name" : "Divider",
           "position" : {
             "scale" : 1,
             "translation-in-points" : [
               0,
-              -275.7578125
+              -256
             ]
           }
         },
