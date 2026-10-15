@@ -121,6 +121,7 @@ public final class PastecardCore: @unchecked Sendable {
     }
     
     public func saveLocal(_ text: String) {
+        guard text != loadLocal() else { return }
         defaults.set(text, forKey: "text")
         WidgetCenter.shared.reloadTimelines(ofKind: PastecardCore.widgetKind)
     }

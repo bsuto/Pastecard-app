@@ -11,7 +11,6 @@ import TipKit
 #elseif os(macOS)
 import AppKit
 #endif
-import WidgetKit
 internal import Combine
 
 @MainActor class Pastecard: ObservableObject {

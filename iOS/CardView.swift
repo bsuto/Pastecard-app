@@ -325,6 +325,7 @@ struct CardView: View {
 
 private struct CustomToolbarModifier<Toolbar: View>: ViewModifier {
     @State private var inEditingMode = false
+    @State private var sessionActive = false
     private let toolbar: Toolbar
     
     init(@ViewBuilder toolbar: () -> Toolbar) {
@@ -347,6 +348,14 @@ private struct CustomToolbarModifier<Toolbar: View>: ViewModifier {
                 }
             }
             .onReceive(NotificationCenter.default.publisher(for: .editingDidStart)) { _ in
+                sessionActive = true
+                withAnimation(.easeIn(duration: 0.2)) {
+                    inEditingMode = true
+                }
+            }
+            // if keyboard reappears after e.g. shake to undo
+            .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillShowNotification)) { note in
+                guard sessionActive else { return }
                 withAnimation(.easeIn(duration: 0.2)) {
                     inEditingMode = true
                 }
@@ -358,6 +367,7 @@ private struct CustomToolbarModifier<Toolbar: View>: ViewModifier {
                 }
             }
             .onReceive(NotificationCenter.default.publisher(for: .editingDidEnd)) { _ in
+                sessionActive = false
                 var transaction = Transaction()
                 transaction.disablesAnimations = true
                 withTransaction(transaction) {
